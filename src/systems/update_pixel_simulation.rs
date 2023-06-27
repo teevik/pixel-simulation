@@ -1,5 +1,6 @@
 use crate::components::{MainCamera, PixelSimulation};
 use crate::pixel_simulation::cell::Cell;
+use crate::pixel_simulation::cell_model::CellModel;
 use crate::pixel_simulation::cell_models::CELL_MODELS;
 use crate::pixel_simulation::{CHUNK_CELLS_SIZE, CHUNK_WORLD_SIZE};
 use bevy::input::Input;
@@ -8,7 +9,6 @@ use bevy::prelude::{
     Camera, GlobalTransform, KeyCode, Local, MouseButton, Query, Res, Window, With,
 };
 use bevy::window::PrimaryWindow;
-use crate::pixel_simulation::cell_model::CellModel;
 
 pub struct SelectedCellModel(&'static CellModel);
 
@@ -58,18 +58,26 @@ pub fn update_pixel_simulation(
     if let Some(world_position) = world_position && (should_spawn_cell || should_erase_cell) {
         for mut pixel_simulation in query.iter_mut() {
             let cell_position = world_position * (CHUNK_CELLS_SIZE as f32) / CHUNK_WORLD_SIZE;
-            let cell_position = cell_position.floor();
-            let (x,y) = (cell_position.x, cell_position.y);
+            let cell_position = cell_position.floor().as_ivec2();
 
-            if x < 0. || y<0. || x>= CHUNK_CELLS_SIZE as f32 || y >= CHUNK_CELLS_SIZE as f32 { continue; }
+            for x_offset in -1..=1 {
+                for y_offset in -1..=1 {
+                    let (x,y) = (cell_position.x + x_offset, cell_position.y + y_offset);
 
-            let (x, y) = (x as usize, y as usize);
+                    if x < 0 || y<0 || x>= CHUNK_CELLS_SIZE as i32 || y >= CHUNK_CELLS_SIZE as i32 { continue; }
+                    let (x, y) = (x as usize, y as usize);
 
-            pixel_simulation.chunk.cells[(x, y)] = if should_spawn_cell {
-                Some(Cell::new((*selected_cell_model).0))
-            } else {
-                None
-            };
+                     if should_spawn_cell {
+                         let target_is_empty = pixel_simulation.chunk.cells.get((x, y)).expect("Never out of bounds").is_none();
+
+                         if target_is_empty {
+                            pixel_simulation.chunk.cells[(x, y)] = Some(Cell::new((*selected_cell_model).0));
+                         }
+                    } else {
+                         pixel_simulation.chunk.cells[(x, y)] = None;
+                    };
+                }
+            }
         }
     }
 }
