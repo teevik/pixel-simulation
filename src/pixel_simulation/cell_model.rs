@@ -5,15 +5,18 @@ use rand::{thread_rng, Rng};
 pub enum CellBehaviour {
     Solid,
     Powder,
-    // Liquid,
+    Liquid,
 }
 
+pub struct Reaction {}
+
 pub struct CellModel {
-    pub id: u32,
+    pub id: &'static str,
     pub name: &'static str,
     pub behavior: CellBehaviour,
     pub density: f32,
     pub color: ColorGradient, // TODO Solid color or gradient?
+    pub reactions: &'static [Reaction],
 }
 
 impl CellModel {

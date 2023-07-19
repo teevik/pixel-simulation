@@ -1,13 +1,20 @@
 #![feature(lazy_cell)]
 #![feature(try_blocks)]
 #![feature(let_chains)]
+#![feature(default_free_fn)]
 
 mod color;
 mod components;
 mod pixel_simulation;
 mod systems;
 
-use bevy::prelude::*;
+use bevy::asset::diagnostic::AssetCountDiagnosticsPlugin;
+use bevy::diagnostic::{
+    DiagnosticsPlugin, EntityCountDiagnosticsPlugin, FrameTimeDiagnosticsPlugin,
+};
+use bevy::window::WindowMode;
+use bevy::{prelude::*, window::WindowResolution};
+use bevy_editor_pls::EditorPlugin;
 use pixel_simulation::TICKS_PER_SECOND;
 use systems::{
     chunk_gizmo, render_pixel_simulation, setup_pixel_simulation, simulate_pixel_simulation,
@@ -19,12 +26,18 @@ fn main() {
 
     app.add_plugins(DefaultPlugins.set(WindowPlugin {
         primary_window: Some(Window {
-            resizable: false,
-
+            // resizable: false,
+            mode: WindowMode::BorderlessFullscreen,
+            resolution: WindowResolution::new(512., 512.),
             ..default()
         }),
         ..default()
     }));
+
+    app.add_plugins(EditorPlugin::default());
+
+    app.add_plugins(FrameTimeDiagnosticsPlugin);
+    app.add_plugins(EntityCountDiagnosticsPlugin);
 
     app.insert_resource(ClearColor(Color::rgb_u8(234, 231, 217)));
 

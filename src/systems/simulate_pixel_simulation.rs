@@ -3,10 +3,12 @@ use crate::pixel_simulation::cell_model::CellBehaviour;
 use crate::pixel_simulation::chunk::Chunk;
 use crate::pixel_simulation::CHUNK_CELLS_SIZE;
 use bevy::prelude::{Local, Query};
-use rand::random;
+use rand::seq::SliceRandom;
+use rand::{random, thread_rng};
+use std::num::Wrapping;
 
-fn simulate_chunk(chunk: &mut Chunk, last_updated: bool) {
-    let is_even_iteration = last_updated;
+fn simulate_chunk(chunk: &mut Chunk, last_updated: Wrapping<u8>) {
+    let is_even_iteration = last_updated.0 % 2 == 0;
 
     let horizontal_range = if is_even_iteration {
         itertools::Either::Left(0..CHUNK_CELLS_SIZE)
@@ -62,6 +64,7 @@ fn simulate_chunk(chunk: &mut Chunk, last_updated: bool) {
 
             match cell.model.behavior {
                 CellBehaviour::Solid => {}
+
                 CellBehaviour::Powder => {
                     if !try_move(0, -1) {
                         if random() {
@@ -74,7 +77,29 @@ fn simulate_chunk(chunk: &mut Chunk, last_updated: bool) {
                             }
                         }
                     }
-                    // if matches!(cells.get((x, y + 1)), None)
+
+                    // Should be fine to not update if it didn't move
+                }
+
+                CellBehaviour::Liquid => {
+                    let mut move_offsets = vec![(1, -1), (0, -1), (-1, -1)];
+                    move_offsets.shuffle(&mut thread_rng());
+
+                    let did_move = move_offsets
+                        .into_iter()
+                        .any(|move_offset| try_move(move_offset.0, move_offset.1));
+
+                    if !did_move {
+                        if random() {
+                            if !try_move(1, 0) {
+                                try_move(-1, 0);
+                            }
+                        } else {
+                            if !try_move(-1, 0) {
+                                try_move(1, 0);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -90,9 +115,9 @@ fn simulate_chunk(chunk: &mut Chunk, last_updated: bool) {
 
 pub fn simulate_pixel_simulation(
     mut query: Query<&mut PixelSimulation>,
-    mut last_updated: Local<bool>,
+    mut last_updated: Local<Wrapping<u8>>,
 ) {
-    *last_updated = !*last_updated;
+    *last_updated += 1;
 
     for mut pixel_simulation in query.iter_mut() {
         simulate_chunk(&mut pixel_simulation.chunk, *last_updated);

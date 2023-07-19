@@ -14,7 +14,7 @@ pub struct SelectedCellModel(&'static CellModel);
 
 impl Default for SelectedCellModel {
     fn default() -> Self {
-        Self(CELL_MODELS.get(&1).unwrap())
+        Self(CELL_MODELS.get("stone_wall").unwrap())
     }
 }
 
@@ -29,11 +29,15 @@ pub fn update_pixel_simulation(
     for pressed_key in keys.get_just_pressed() {
         match pressed_key {
             KeyCode::Key1 => {
-                *selected_cell_model = SelectedCellModel(CELL_MODELS.get(&1).unwrap());
+                *selected_cell_model = SelectedCellModel(CELL_MODELS.get("stone_wall").unwrap());
             }
 
             KeyCode::Key2 => {
-                *selected_cell_model = SelectedCellModel(CELL_MODELS.get(&2).unwrap());
+                *selected_cell_model = SelectedCellModel(CELL_MODELS.get("sand").unwrap());
+            }
+
+            KeyCode::Key3 => {
+                *selected_cell_model = SelectedCellModel(CELL_MODELS.get("water").unwrap());
             }
 
             _ => {}
