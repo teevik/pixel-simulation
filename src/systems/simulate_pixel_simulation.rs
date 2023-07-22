@@ -47,6 +47,18 @@ fn simulate_chunk(chunk: &mut Chunk, last_updated: Wrapping<u8>) {
 
                 let (target_x, target_y) = (target_x as usize, target_y as usize);
 
+                let cell_model = cell.model;
+                let target_cell_model = cells[(target_x, target_y)].as_ref().map(|cell| cell.model);
+
+                if let Some(target_cell) = cells[(target_x, target_y)].clone() {
+                    let reaction = cell_model.reactions.get(target_cell.model.id);
+                    if let Some(reaction) = reaction {
+                        // doReaction(cell, targetCell)
+                    } else if let Some(reaction) = target_cell.model.reactions.get(cell.model.id) && !reaction.one_way {
+                        // doReaction(targetCell, cell)
+                    }
+                }
+
                 if matches!(
                     cells
                         .get((target_x, target_y))

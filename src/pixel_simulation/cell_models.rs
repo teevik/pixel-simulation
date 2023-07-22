@@ -1,5 +1,5 @@
 use crate::color::ColorGradient;
-use crate::pixel_simulation::cell_model::{CellBehaviour, CellModel};
+use crate::pixel_simulation::cell_model::{CellBehaviour, CellModel, Reaction};
 use bevy::utils::HashMap;
 use palette::lch::Lch;
 use std::sync::LazyLock;
@@ -14,7 +14,7 @@ fn generate_cell_models() -> HashMap<&'static str, CellModel> {
             from: Lch::new(43., 0., 0.),
             to: Lch::new(22., 0., 0.),
         },
-        reactions: &[],
+        reactions: HashMap::from([]),
     };
 
     let sand_model = CellModel {
@@ -26,7 +26,7 @@ fn generate_cell_models() -> HashMap<&'static str, CellModel> {
             from: Lch::new(78.0, 25.0, 92.0),
             to: Lch::new(83.0, 25.0, 92.0),
         },
-        reactions: &[],
+        reactions: HashMap::from([]),
     };
 
     let water_model = CellModel {
@@ -38,7 +38,14 @@ fn generate_cell_models() -> HashMap<&'static str, CellModel> {
             from: Lch::new(65.0, 37.0, 249.0),
             to: Lch::new(70.0, 37.0, 249.0),
         },
-        reactions: &[],
+        reactions: HashMap::from([(
+            "sand",
+            Reaction {
+                self_turns_into: None,
+                other_turns_into: Some("stone"),
+                one_way: false,
+            },
+        )]),
     };
 
     HashMap::from_iter([stone_wall_model, sand_model, water_model].map(|model| (model.id, model)))

@@ -1,4 +1,5 @@
 use crate::color::ColorGradient;
+use bevy::utils::HashMap;
 use palette::{FromColor, Srgba};
 use rand::{thread_rng, Rng};
 
@@ -8,7 +9,11 @@ pub enum CellBehaviour {
     Liquid,
 }
 
-pub struct Reaction {}
+pub struct Reaction {
+    pub self_turns_into: Option<&'static str>,
+    pub other_turns_into: Option<&'static str>,
+    pub one_way: bool,
+}
 
 pub struct CellModel {
     pub id: &'static str,
@@ -16,7 +21,7 @@ pub struct CellModel {
     pub behavior: CellBehaviour,
     pub density: f32,
     pub color: ColorGradient, // TODO Solid color or gradient?
-    pub reactions: &'static [Reaction],
+    pub reactions: HashMap<&'static str, Reaction>,
 }
 
 impl CellModel {
