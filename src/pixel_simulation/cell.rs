@@ -11,11 +11,11 @@ pub struct Cell {
 }
 
 impl Cell {
-    pub fn new(model: &'static CellModel) -> Self {
+    pub fn new(model: &'static CellModel, last_updated: Wrapping<u8>) -> Self {
         Self {
             model,
             color: model.generate_color(),
-            last_updated: default(),
+            last_updated,
         }
     }
 }

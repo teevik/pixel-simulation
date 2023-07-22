@@ -9,9 +9,15 @@ pub enum CellBehaviour {
     Liquid,
 }
 
+pub enum Chance {
+    Always,
+    Sometimes(f32),
+}
+
 pub struct Reaction {
     pub self_turns_into: Option<&'static str>,
     pub other_turns_into: Option<&'static str>,
+    pub chance: Chance,
     pub one_way: bool,
 }
 

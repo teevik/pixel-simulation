@@ -9,6 +9,7 @@ use bevy::prelude::{
     Camera, GlobalTransform, KeyCode, Local, MouseButton, Query, Res, Window, With,
 };
 use bevy::window::PrimaryWindow;
+use std::default::default;
 
 pub struct SelectedCellModel(&'static CellModel);
 
@@ -75,7 +76,7 @@ pub fn update_pixel_simulation(
                          let target_is_empty = pixel_simulation.chunk.cells.get((x, y)).expect("Never out of bounds").is_none();
 
                          if target_is_empty {
-                            pixel_simulation.chunk.cells[(x, y)] = Some(Cell::new((*selected_cell_model).0));
+                            pixel_simulation.chunk.cells[(x, y)] = Some(Cell::new((*selected_cell_model).0, default()));
                          }
                     } else {
                          pixel_simulation.chunk.cells[(x, y)] = None;

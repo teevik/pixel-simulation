@@ -1,5 +1,7 @@
 use crate::components::PixelSimulation;
-use crate::pixel_simulation::cell_model::CellBehaviour;
+use crate::pixel_simulation::cell::Cell;
+use crate::pixel_simulation::cell_model::{CellBehaviour, Reaction};
+use crate::pixel_simulation::cell_models::CELL_MODELS;
 use crate::pixel_simulation::chunk::Chunk;
 use crate::pixel_simulation::CHUNK_CELLS_SIZE;
 use bevy::prelude::{Local, Query};
@@ -32,6 +34,17 @@ fn simulate_chunk(chunk: &mut Chunk, last_updated: Wrapping<u8>) {
 
             cell.last_updated = last_updated;
 
+            let do_reaction = |reaction: &Reaction| -> Option<(Option<Cell>, Option<Cell>)> {
+                let new_this = reaction
+                    .self_turns_into
+                    .map(|element| Cell::new(&CELL_MODELS[element], last_updated));
+                let new_other = reaction
+                    .other_turns_into
+                    .map(|element| Cell::new(&CELL_MODELS[element], last_updated));
+
+                Some((new_this, new_other))
+            };
+
             let mut try_move = |x_offset: i32, y_offset: i32| -> bool {
                 let cell = cell.clone();
 
@@ -47,15 +60,22 @@ fn simulate_chunk(chunk: &mut Chunk, last_updated: Wrapping<u8>) {
 
                 let (target_x, target_y) = (target_x as usize, target_y as usize);
 
-                let cell_model = cell.model;
-                let target_cell_model = cells[(target_x, target_y)].as_ref().map(|cell| cell.model);
-
                 if let Some(target_cell) = cells[(target_x, target_y)].clone() {
-                    let reaction = cell_model.reactions.get(target_cell.model.id);
+                    let reaction = cell.model.reactions.get(target_cell.model.id);
                     if let Some(reaction) = reaction {
-                        // doReaction(cell, targetCell)
+                        if let Some((this, target)) = do_reaction(reaction) {
+                            cells[(x, y)] = this;
+                            cells[(target_x, target_y)] = target;
+
+                            return true;
+                        }
                     } else if let Some(reaction) = target_cell.model.reactions.get(cell.model.id) && !reaction.one_way {
-                        // doReaction(targetCell, cell)
+                        if let Some((target, this)) = do_reaction(reaction) {
+                            cells[(x, y)] = this;
+                            cells[(target_x, target_y)] = target;
+
+                            return true;
+                        }
                     }
                 }
 

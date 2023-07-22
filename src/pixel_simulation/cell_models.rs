@@ -1,5 +1,5 @@
 use crate::color::ColorGradient;
-use crate::pixel_simulation::cell_model::{CellBehaviour, CellModel, Reaction};
+use crate::pixel_simulation::cell_model::{CellBehaviour, CellModel, Chance, Reaction};
 use bevy::utils::HashMap;
 use palette::lch::Lch;
 use std::sync::LazyLock;
@@ -42,8 +42,9 @@ fn generate_cell_models() -> HashMap<&'static str, CellModel> {
             "sand",
             Reaction {
                 self_turns_into: None,
-                other_turns_into: Some("stone"),
+                other_turns_into: Some("stone_wall"),
                 one_way: false,
+                chance: Chance::Always,
             },
         )]),
     };
