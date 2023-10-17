@@ -1,12 +1,12 @@
 use crate::components::PixelSimulation;
 use crate::pixel_simulation::cell::Cell;
-use crate::pixel_simulation::cell_model::{CellBehaviour, Reaction};
+use crate::pixel_simulation::cell_model::{CellBehaviour, Chance, Reaction};
 use crate::pixel_simulation::cell_models::CELL_MODELS;
 use crate::pixel_simulation::chunk::Chunk;
 use crate::pixel_simulation::CHUNK_CELLS_SIZE;
 use bevy::prelude::{Local, Query};
 use rand::seq::SliceRandom;
-use rand::{random, thread_rng};
+use rand::{random, thread_rng, Rng};
 use std::num::Wrapping;
 
 fn simulate_chunk(chunk: &mut Chunk, last_updated: Wrapping<u8>) {
@@ -35,6 +35,15 @@ fn simulate_chunk(chunk: &mut Chunk, last_updated: Wrapping<u8>) {
             cell.last_updated = last_updated;
 
             let do_reaction = |reaction: &Reaction| -> Option<(Option<Cell>, Option<Cell>)> {
+                let should_react = match reaction.chance {
+                    Chance::Always => true,
+                    Chance::Sometimes(probability) => thread_rng().gen_bool(probability),
+                };
+
+                if !should_react {
+                    return None;
+                };
+
                 let new_this = reaction
                     .self_turns_into
                     .map(|element| Cell::new(&CELL_MODELS[element], last_updated));

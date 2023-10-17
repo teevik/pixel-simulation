@@ -1,7 +1,6 @@
 #![feature(lazy_cell)]
 #![feature(try_blocks)]
 #![feature(let_chains)]
-#![feature(default_free_fn)]
 
 mod color;
 mod components;

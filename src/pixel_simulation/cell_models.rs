@@ -42,14 +42,28 @@ fn generate_cell_models() -> HashMap<&'static str, CellModel> {
             "sand",
             Reaction {
                 self_turns_into: None,
-                other_turns_into: Some("stone_wall"),
+                other_turns_into: Some("wet_sand"),
                 one_way: false,
-                chance: Chance::Always,
+                chance: Chance::Sometimes(0.5),
             },
         )]),
     };
 
-    HashMap::from_iter([stone_wall_model, sand_model, water_model].map(|model| (model.id, model)))
+    let wet_sand_model = CellModel {
+        id: "wet_sand",
+        name: "Wet sand",
+        behavior: CellBehaviour::Powder,
+        density: 1602.,
+        color: ColorGradient {
+            from: Lch::new(70.0, 30.0, 92.0),
+            to: Lch::new(75.0, 30.0, 92.0),
+        },
+        reactions: HashMap::from([]),
+    };
+
+    HashMap::from_iter(
+        [stone_wall_model, sand_model, water_model, wet_sand_model].map(|model| (model.id, model)),
+    )
 }
 
 pub static CELL_MODELS: LazyLock<HashMap<&'static str, CellModel>> =

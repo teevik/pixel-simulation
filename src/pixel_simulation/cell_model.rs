@@ -11,7 +11,7 @@ pub enum CellBehaviour {
 
 pub enum Chance {
     Always,
-    Sometimes(f32),
+    Sometimes(f64),
 }
 
 pub struct Reaction {

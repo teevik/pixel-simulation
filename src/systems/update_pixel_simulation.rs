@@ -8,8 +8,8 @@ use bevy::math::Vec2;
 use bevy::prelude::{
     Camera, GlobalTransform, KeyCode, Local, MouseButton, Query, Res, Window, With,
 };
+use bevy::utils::default;
 use bevy::window::PrimaryWindow;
-use std::default::default;
 
 pub struct SelectedCellModel(&'static CellModel);
 

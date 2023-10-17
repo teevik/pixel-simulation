@@ -1,6 +1,5 @@
 use crate::pixel_simulation::cell_model::CellModel;
 use palette::Srgba;
-use std::default::default;
 use std::num::Wrapping;
 
 #[derive(Clone)]
