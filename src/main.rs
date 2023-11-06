@@ -35,6 +35,8 @@ fn main() {
 
     app.add_plugins(EditorPlugin::default());
 
+    app.add_systems(Update, bevy::window::close_on_esc);
+
     app.add_plugins(FrameTimeDiagnosticsPlugin);
     app.add_plugins(EntityCountDiagnosticsPlugin);
 
