@@ -7,12 +7,9 @@ mod components;
 mod pixel_simulation;
 mod systems;
 
-use bevy::asset::diagnostic::AssetCountDiagnosticsPlugin;
-use bevy::diagnostic::{
-    DiagnosticsPlugin, EntityCountDiagnosticsPlugin, FrameTimeDiagnosticsPlugin,
-};
+use bevy::diagnostic::{EntityCountDiagnosticsPlugin, FrameTimeDiagnosticsPlugin};
+use bevy::prelude::*;
 use bevy::window::WindowMode;
-use bevy::{prelude::*, window::WindowResolution};
 use bevy_editor_pls::EditorPlugin;
 use pixel_simulation::TICKS_PER_SECOND;
 use systems::{
@@ -25,9 +22,7 @@ fn main() {
 
     app.add_plugins(DefaultPlugins.set(WindowPlugin {
         primary_window: Some(Window {
-            // resizable: false,
             mode: WindowMode::BorderlessFullscreen,
-            resolution: WindowResolution::new(512., 512.),
             ..default()
         }),
         ..default()
@@ -51,7 +46,7 @@ fn main() {
         FixedUpdate,
         simulate_pixel_simulation::simulate_pixel_simulation,
     );
-    app.insert_resource(FixedTime::new_from_secs(1. / TICKS_PER_SECOND));
+    app.insert_resource(Time::<Fixed>::from_seconds(1. / TICKS_PER_SECOND));
 
     app.add_systems(Update, bevy::window::close_on_esc);
 
