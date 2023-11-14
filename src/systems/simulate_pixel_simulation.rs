@@ -103,7 +103,6 @@ fn simulate_chunk(chunk: &mut Chunk, last_updated: Wrapping<u8>) {
                         let density_swap_probability = (cell.model.density
                             - target_cell.model.density)
                             / (cell.model.density + target_cell.model.density);
-                        dbg!(density_swap_probability);
 
                         if thread_rng().gen_bool(density_swap_probability as f64) {
                             cells[(x, y)] = Some(target_cell);
