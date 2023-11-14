@@ -69,6 +69,7 @@ fn simulate_chunk(chunk: &mut Chunk, last_updated: Wrapping<u8>) {
 
                 let (target_x, target_y) = (target_x as usize, target_y as usize);
 
+                // Reactions
                 if let Some(target_cell) = cells[(target_x, target_y)].clone() {
                     let reaction = cell.model.reactions.get(target_cell.model.id);
                     if let Some(reaction) = reaction {
@@ -78,7 +79,9 @@ fn simulate_chunk(chunk: &mut Chunk, last_updated: Wrapping<u8>) {
 
                             return true;
                         }
-                    } else if let Some(reaction) = target_cell.model.reactions.get(cell.model.id) && !reaction.one_way {
+                    } else if let Some(reaction) = target_cell.model.reactions.get(cell.model.id)
+                        && !reaction.one_way
+                    {
                         if let Some((target, this)) = do_reaction(reaction) {
                             cells[(x, y)] = this;
                             cells[(target_x, target_y)] = target;
@@ -88,18 +91,37 @@ fn simulate_chunk(chunk: &mut Chunk, last_updated: Wrapping<u8>) {
                     }
                 }
 
-                if matches!(
-                    cells
-                        .get((target_x, target_y))
-                        .expect("Never out of bounds"),
-                    None
-                ) {
+                // Normal move
+                let target_cell = cells
+                    .get((target_x, target_y))
+                    .expect("Never out of bounds")
+                    .clone();
+
+                if let Some(target_cell) = target_cell {
+                    // Target cell exists, check if density is larger
+                    if cell.model.density > target_cell.model.density {
+                        let density_swap_probability = (cell.model.density
+                            - target_cell.model.density)
+                            / (cell.model.density + target_cell.model.density);
+                        dbg!(density_swap_probability);
+
+                        if thread_rng().gen_bool(density_swap_probability as f64) {
+                            cells[(x, y)] = Some(target_cell);
+                            cells[(target_x, target_y)] = Some(cell);
+
+                            true
+                        } else {
+                            false
+                        }
+                    } else {
+                        false
+                    }
+                } else {
+                    // Target cell is empty
                     cells[(x, y)] = None;
                     cells[(target_x, target_y)] = Some(cell);
 
                     true
-                } else {
-                    false
                 }
             };
 
